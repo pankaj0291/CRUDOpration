@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CRUD Application in JavaScript</title>
+        <style>
+            body{
+                font-family: sans-serif; text-align: center;
+            }
+            #container{ width: 1024px;
+                        margin: 0 auto;
+
+            }
+            table 
+            {   margin-top: 20px;
+                width: 100%;
+                padding: 2px 3px;
+                font-size: 16;
+            }
+            table, th, td 
+            {
+                border: solid 1px #DDD;
+                border-collapse: collapse;
+                padding: 2px 3px;
+                text-align: center;
+            }
+
+            input[type='button'] 
+            {
+                display: inline-block;
+                padding: 5px 10px;
+                margin: 3px 3px;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1.42857143;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                -ms-touch-action: manipulation;
+                touch-action: manipulation;
+                cursor: pointer;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                background-image: none;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                color: #fff;
+            }
+
+            input[type='text'], select 
+            {
+                font: 17px Calibri;
+                text-align: center;
+                border: solid 1px #CCC;
+                width: auto;
+                padding: 2px 3px;
+            }
+            .tableheading{ background-color: #CCC; padding: 5px 5px;}
+            .tableheading th{ padding: 10px 10px;}
+            .inactive{
+                background-color: #ef686875;
+            }
+            .update{
+                background-color: #5bc0de;
+                border-color: #46b8da;}
+            .delete{
+                background-color:#ED5650;
+                border-color: #ED5650;}
+            .create{
+                background-color:#207DD1;
+                border-color: #207DD1;}
+        </style>
+    </head>
+    <body><h1>CRUD Operations in JavaScript</h1> <hr>
+        <div id="container">
+
+        </div>
+    </body>
+
+    <script type="text/javascript">
+        var crudApp = new function () {
+            
+        var numbudget = /\d{1,10}/;
+            var reg = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i;
+            // ARRAY OF JSON OBJECTS WITH VALUES.
+            this.ContactList = [
+                {ID: '1', FirstName: 'Pankaj', LastName: 'Sankhla', Email: 'deep.pankaj291@gmail.com', Phone: 7737698988, Status: 'Active'},
+                {ID: '2', FirstName: 'Paul', LastName: 'Adam', Email: 'paul.adam@gmail.com', Phone: 9988225544, Status: 'Inactive'}
+            ]
+
+            this.status = ['Active', 'Inactive'];
+            this.col = [];
+
+            this.createTable = function () {
+
+                // SET VALUE FOR TABLE HEADER.
+                for (var i = 0; i < this.ContactList.length; i++) {
+                    for (var key in this.ContactList[i]) {
+                        if (this.col.indexOf(key) === -1) {
+                            this.col.push(key);
+                        }
+                    }
+                }
+
+
+                // CREATE A TABLE.
+                var table = document.createElement('table');
+                table.setAttribute('id', 'ContactTable');     // SET TABLE ID.
+
+                var tr = table.insertRow(-1);               // ADD TABLE HEADER.
+                tr.classList.add("tableheading");
+                for (var h = 0; h < this.col.length; h++) {
+                    
+                    var th = document.createElement('th');
+                    th.innerHTML = this.col[h].replace('_', ' ');
+                    tr.appendChild(th);
+                }
+                this.td = document.createElement('th');
+                tr.appendChild(this.td);
+                this.td.innerHTML = "Action";
+
+                this.td = document.createElement('th');
+                tr.appendChild(this.td);
+                this.td.innerHTML = "Delete";
+
+
+                // ADD ROWS USING JSON DATA.
+                for (var i = 0; i < this.ContactList.length; i++) {
+
+                    tr = table.insertRow(-1);           // CREATE A NEW ROW.
+
+                    for (var j = 0; j < this.col.length; j++) {
+
+                        var tabCell = tr.insertCell(-1);
+                        tabCell.innerHTML = this.ContactList[i][this.col[j]];
+                        if (this.ContactList[i][this.col[j]] === "Inactive") {
+                            tr.classList.add("inactive");
+
+                        }
+                    }
+
+                    // DYNAMICALLY CREATE AND ADD ROW.
+
+                    this.td = document.createElement('td');
+
+                    // *** CANCEL OPTION.
+                    tr.appendChild(this.td);
+                    var lblCancel = document.createElement('label');
+                    lblCancel.innerHTML = '✖';
+                    lblCancel.setAttribute('onclick', 'crudApp.Cancel(this)');
+                    lblCancel.setAttribute('style', 'display:none;');
+                    lblCancel.setAttribute('title', 'Cancel');
+                    lblCancel.setAttribute('id', 'lbl' + i);
+                    this.td.appendChild(lblCancel);
+
+                    // *** SAVE.
+                    tr.appendChild(this.td);
+                    var btSave = document.createElement('input');
+
+                    btSave.setAttribute('type', 'button');      // SET ATTRIBUTES.
+                    btSave.setAttribute('value', 'Save');
+                    btSave.setAttribute('id', 'Save' + i);
+                    btSave.setAttribute('style', 'display:none;');
+                    btSave.setAttribute('onclick', 'crudApp.Save(this)');       // ADD THE BUTTON's 'onclick' EVENT.
+                    this.td.appendChild(btSave);
+
+                    // *** UPDATE.
+                    tr.appendChild(this.td);
+                    var btUpdate = document.createElement('input');
+
+                    btUpdate.setAttribute('type', 'button');    // SET ATTRIBUTES.
+                    btUpdate.setAttribute('value', 'Update');
+                    btUpdate.setAttribute('id', 'Edit' + i);
+                    btUpdate.setAttribute('class', 'update');
+                    btUpdate.setAttribute('onclick', 'crudApp.Update(this)');   // ADD THE BUTTON's 'onclick' EVENT.
+                    this.td.appendChild(btUpdate);
+
+                    // *** DELETE.
+                    this.td = document.createElement('th');
+                    tr.appendChild(this.td);
+                    var btDelete = document.createElement('input');
+                    btDelete.setAttribute('type', 'button');    // SET INPUT ATTRIBUTE.
+                    btDelete.setAttribute('value', 'Delete');
+                    btDelete.setAttribute('class', 'delete');
+                    btDelete.setAttribute('onclick', 'crudApp.Delete(this)');   // ADD THE BUTTON's 'onclick' EVENT.
+                    this.td.appendChild(btDelete);
+                }
+
+
+                // ADD A ROW AT THE END WITH BLANK TEXTBOXES AND A DROPDOWN LIST (FOR NEW ENTRY).
+
+                tr = table.insertRow(-1);           // CREATE THE LAST ROW.
+
+                for (var j = 0; j < this.col.length; j++) {
+                    var newCell = tr.insertCell(-1);
+                    if (j >= 1) {
+
+                        if (j == 5) {   // WE'LL ADD A DROPDOWN LIST AT THE SECOND COLUMN (FOR Status).
+
+                            var select = document.createElement('select');      // CREATE AND ADD A DROPDOWN LIST.
+                            select.innerHTML = '<option value=""></option>';
+                            for (k = 0; k < this.status.length; k++) {
+                                select.innerHTML = select.innerHTML +
+                                        '<option value="' + this.status[k] + '">' + this.status[k] + '</option>';
+                            }
+                            newCell.appendChild(select);
+                        } else {
+                            var tBox = document.createElement('input');          // CREATE AND ADD A TEXTBOX.
+                            tBox.setAttribute('type', 'text');
+                            tBox.setAttribute('value', '');
+                            newCell.appendChild(tBox);
+                        }
+                    }
+                }
+
+                this.td = document.createElement('td');
+                tr.appendChild(this.td);
+
+                var btNew = document.createElement('input');
+
+                btNew.setAttribute('type', 'button');       // SET ATTRIBUTES.
+                btNew.setAttribute('value', 'Create');
+                btNew.setAttribute('id', 'New' + i);
+                btNew.setAttribute('class', 'create');
+                btNew.setAttribute('onclick', 'crudApp.CreateNew(this)');       // ADD THE BUTTON's 'onclick' EVENT.
+                this.td.appendChild(btNew);
+
+                var div = document.getElementById('container');
+                div.innerHTML = '';
+                div.appendChild(table);    // ADD THE TABLE TO THE WEB PAGE.
+            };
+
+            // ****** OPERATIONS START.
+
+            // CANCEL.
+            this.Cancel = function (oButton) {
+
+                // HIDE THIS BUTTON.
+                oButton.setAttribute('style', 'display:none; float:none;');
+
+                var activeRow = oButton.parentNode.parentNode.rowIndex;
+
+                // HIDE THE SAVE BUTTON.
+                var btSave = document.getElementById('Save' + (activeRow - 1));
+                btSave.setAttribute('style', 'display:none;');
+
+                // SHOW THE UPDATE BUTTON AGAIN.
+                var btUpdate = document.getElementById('Edit' + (activeRow - 1));
+                btUpdate.setAttribute('style', 'display:block; margin:0 auto; background-color:#44CCEB;');
+
+                var tab = document.getElementById('ContactTable').rows[activeRow];
+
+                for (i = 0; i < this.col.length; i++) {
+                    var td = tab.getElementsByTagName("td")[i];
+                    td.innerHTML = this.ContactList[(activeRow - 1)][this.col[i]];
+                }
+            }
+
+
+            // EDIT DATA.
+            this.Update = function (oButton) {
+                var activeRow = oButton.parentNode.parentNode.rowIndex;
+                var tab = document.getElementById('ContactTable').rows[activeRow];
+
+                // SHOW A DROPDOWN LIST WITH A LIST OF CATEGORIES.
+                for (i = 0; i < 6; i++) {
+                    if (i == 5) {
+                        var td = tab.getElementsByTagName("td")[i];
+                        var ele = document.createElement('select');      // DROPDOWN LIST.
+                        ele.innerHTML = '<option value="' + td.innerText + '">' + td.innerText + '</option>';
+                        for (k = 0; k < this.status.length; k++) {
+                            ele.innerHTML = ele.innerHTML +
+                                    '<option value="' + this.status[k] + '">' + this.status[k] + '</option>';
+                        }
+                        td.innerText = '';
+                        td.appendChild(ele);
+                    } else {
+                        var td = tab.getElementsByTagName("td")[i];
+                        var ele = document.createElement('input');      // TEXTBOX.
+                        ele.setAttribute('type', 'text');
+                        ele.setAttribute('value', td.innerText);
+                        td.innerText = '';
+                        td.appendChild(ele);
+                    }
+                }
+
+                var lblCancel = document.getElementById('lbl' + (activeRow - 1));
+                lblCancel.setAttribute('style', 'cursor:pointer; display:block; width:20px; float:left; position: absolute;');
+
+                var btSave = document.getElementById('Save' + (activeRow - 1));
+                btSave.setAttribute('style', 'display:block; margin-left:30px; float:left; background-color:#2DBF64;');
+
+                // HIDE THIS BUTTON.
+                oButton.setAttribute('style', 'display:none;');
+            };
+
+
+            // DELETE DATA.
+            this.Delete = function (oButton) {
+                var activeRow = oButton.parentNode.parentNode.rowIndex;
+                this.ContactList.splice((activeRow - 1), 1);    // DELETE THE ACTIVE ROW.
+                this.createTable();                         // REFRESH THE TABLE.
+            };
+
+            // SAVE DATA.
+            this.Save = function (oButton) {
+                var activeRow = oButton.parentNode.parentNode.rowIndex;
+                var tab = document.getElementById('ContactTable').rows[activeRow];
+                var obj = {};
+                // UPDATE ContactList ARRAY WITH VALUES.
+                for (i = 1; i < this.col.length; i++) {
+                    var td = tab.getElementsByTagName("td")[i];
+                    if (td.childNodes[0].getAttribute('type') == 'text' || td.childNodes[0].tagName == 'SELECT') {  // CHECK IF ELEMENT IS A TEXTBOX OR SELECT.
+                       // this.ContactList[(activeRow - 1)][this.col[i]] = td.childNodes[0].value;      // SAVE THE VALUE.
+                        
+                         var txtVal = td.childNodes[0].value;
+                         var succ = true;
+                        if (txtVal != '') {
+                            obj[this.col[i]] = txtVal.trim();
+                            if (obj[this.col[3]] && reg.test(obj[this.col[3]]) === false) {
+                                   obj = '';
+                                    alert('Please Enter Valid Email ID While Updating Record.');
+                                    succ = false;
+                                    break;
+                                }
+                                if (obj[this.col[4]] && numbudget.test(obj[this.col[4]]) === false) {
+                                    
+                                    alert('Please Enter Valid Phone No While Updating Record.');
+                                    succ = false;
+                                    break;
+                                }
+
+
+                            
+                        } else {
+                            obj = '';
+                            alert('all fields are compulsory');
+                            succ = false;
+                            break;
+                        }
+                       
+                      this.ContactList[(activeRow - 1)][this.col[i]] = td.childNodes[0].value;  
+                  }
+             
+                } if(succ === true){
+                this.createTable();     // REFRESH THE TABLE.
+            }
+            }
+
+            // CREATE NEW.
+            this.CreateNew = function (oButton) {
+                var activeRow = oButton.parentNode.parentNode.rowIndex;
+                var tab = document.getElementById('ContactTable').rows[activeRow];
+                var obj = {};
+
+                // ADD NEW VALUE TO ContactList ARRAY.
+                for (i = 1; i < this.col.length; i++) {
+                    var td = tab.getElementsByTagName("td")[i];
+                    if (td.childNodes[0].getAttribute('type') == 'text' || td.childNodes[0].tagName == 'SELECT') {      // CHECK IF ELEMENT IS A TEXTBOX OR SELECT.
+                        var txtVal = td.childNodes[0].value;
+
+                        if (txtVal != '') {
+                            obj[this.col[i]] = txtVal.trim();
+                            if (obj[this.col[3]] && reg.test(obj[this.col[3]]) === false) {
+                                
+                                    obj = '';
+                                    alert('Please Enter Valid Email ID.');
+                                    break;
+                                }    
+                                if (obj[this.col[4]] && numbudget.test(obj[this.col[4]]) === false) {
+                                    obj = '';
+                                    alert('Please Enter Valid Phone No.');
+                                    break;
+                                }
+
+
+                            
+                        } else {
+                            obj = '';
+                            alert('all fields are compulsory');
+                            break;
+                        }
+                    }
+                }
+                obj[this.col[0]] = this.ContactList.length + 1;     // NEW ID.
+
+                if (Object.keys(obj).length > 0) {      // CHECK IF OBJECT IS NOT EMPTY.
+                    this.ContactList.push(obj);             // PUSH (ADD) DATA TO THE JSON ARRAY.
+                    this.createTable();                 // REFRESH THE TABLE.
+                }
+            }
+
+            // ****** OPERATIONS END.
+        }
+
+        crudApp.createTable();
+    </script>
+</html>
